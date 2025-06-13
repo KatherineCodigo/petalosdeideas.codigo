@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tarjeta Mágica Animada</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Arial Rounded MT Bold', sans-serif;
+      background: radial-gradient(circle at center, #000000, #050505, #0a0a0a);
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    .tarjeta {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      width: 400px;
+      height: 400px;
+      background: linear-gradient(135deg, #ff99cc, #ff3366);
+      border-radius: 30px;
+      box-shadow: 0 0 50px rgba(255, 51, 102, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: white;
+      z-index: 2;
+      border: 3px solid white;
+      text-align: center;
+      opacity: 0;
+    }
+
+    .tarjeta h1 {
+      font-size: 50px;
+      margin: 20px 0 10px;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+    }
+
+    .tarjeta p {
+      font-size: 22px;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.7);
+    }
+
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 15px;
+      background-color: #fff;
+      color: #ff3366;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(255,255,255,0.5);
+      transition: transform 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="fondo"></canvas>
+
+<div class="tarjeta" id="tarjeta">
+  <h1>Te Amo</h1>
+  <p>Eres mi persona especial</p>
+  <button onclick="agregarCorazones()">Corazones</button>
+  <button onclick="agregarEstrellas()">Estrellitas</button>
+  <button onclick="explosion()">Explosión de Amor</button>
+  <button onclick="lluviaParticulas()">Lluvia de colores</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+<script>
+  const canvas = document.getElementById('fondo');
+  const ctx = canvas.getContext('2d');
+  const tarjeta = document.getElementById('tarjeta');
+  let ancho, alto;
+  let particulas = [];
+
+  function redimensionar() {
+    ancho = window.innerWidth;
+    alto = window.innerHeight;
+    canvas.width = ancho;
+    canvas.height = alto;
+  }
+
+  window.addEventListener('resize', redimensionar);
+  redimensionar();
+
+  class Particula {
+    constructor(x, y, color, tamaño, velocidadY, velocidadX) {
+      this.x = x;
+      this.y = y;
+      this.color = color;
+      this.tamaño = tamaño;
+      this.velocidadY = velocidadY;
+      this.velocidadX = velocidadX;
+    }
+    mover() {
+      this.y += this.velocidadY;
+      this.x += this.velocidadX;
+      if (this.y > alto || this.x > ancho || this.x < 0) {
+        this.y = -10;
+        this.x = Math.random() * ancho;
+      }
+    }
+    dibujar() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.tamaño, 0, 2 * Math.PI);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+    }
+  }
+
+  function crearParticulasIniciales() {
+    for (let i = 0; i < 80; i++) {
+      const color = `hsl(${Math.random() * 360}, 80%, 60%)`;
+      particulas.push(new Particula(Math.random() * ancho, Math.random() * alto, color, Math.random()*3+2, Math.random()*1+0.5, (Math.random()-0.5)*0.5));
+    }
+  }
+
+  crearParticulasIniciales();
+
+  function animar() {
+    ctx.clearRect(0, 0, ancho, alto);
+    particulas.forEach(p => {
+      p.mover();
+      p.dibujar();
+    });
+    requestAnimationFrame(animar);
+  }
+  animar();
+
+  function agregarCorazones() {
+    for (let i = 0; i < 30; i++) {
+      const corazon = document.createElement('div');
+      corazon.textContent = '❤️';
+      corazon.style.position = 'absolute';
+      corazon.style.fontSize = `${Math.random() * 40 + 20}px`;
+      corazon.style.left = `${Math.random() * window.innerWidth}px`;
+      corazon.style.top = `${window.innerHeight}px`;
+      document.body.appendChild(corazon);
+      anime({
+        targets: corazon,
+        translateY: -window.innerHeight - 100,
+        duration: Math.random() * 4000 + 3000,
+        easing: 'linear',
+        complete: () => corazon.remove()
+      });
+    }
+  }
+
+  function agregarEstrellas() {
+    for (let i = 0; i < 50; i++) {
+      const estrella = document.createElement('div');
+      estrella.textContent = '✨';
+      estrella.style.position = 'absolute';
+      estrella.style.fontSize = `${Math.random() * 20 + 10}px`;
+      estrella.style.left = `${Math.random() * window.innerWidth}px`;
+      estrella.style.top = `${window.innerHeight}px`;
+      document.body.appendChild(estrella);
+      anime({
+        targets: estrella,
+        translateY: -window.innerHeight - 100,
+        duration: Math.random() * 5000 + 2000,
+        easing: 'linear',
+        complete: () => estrella.remove()
+      });
+    }
+  }
+
+  function explosion() {
+    for (let i = 0; i < 100; i++) {
+      const particle = document.createElement('div');
+      particle.style.position = 'absolute';
+      particle.style.width = '8px';
+      particle.style.height = '8px';
+      particle.style.borderRadius = '50%';
+      particle.style.background = `hsl(${Math.random()*360}, 70%, 60%)`;
+      particle.style.left = '50%';
+      particle.style.top = '50%';
+      document.body.appendChild(particle);
+      anime({
+        targets: particle,
+        translateX: (Math.random() - 0.5) * 1000,
+        translateY: (Math.random() - 0.5) * 800,
+        scale: [1, 0],
+        opacity: [1, 0],
+        duration: 2000,
+        easing: 'easeOutExpo',
+        complete: () => particle.remove()
+      });
+    }
+  }
+
+  function lluviaParticulas() {
+    for (let i = 0; i < 50; i++) {
+      const color = `hsl(${Math.random() * 360}, 80%, 60%)`;
+      particulas.push(new Particula(Math.random() * ancho, -10, color, Math.random()*3+2, Math.random()*1+0.5, (Math.random()-0.5)*0.5));
+    }
+  }
+
+  // Animación inicial de entrada de la tarjeta
+  anime({
+    targets: tarjeta,
+    scale: [0, 1.2, 1],
+    opacity: [0, 1],
+    easing: 'easeOutElastic(1, .5)',
+    duration: 3000
+  });
+</script>
+
+</body>
+</html>
